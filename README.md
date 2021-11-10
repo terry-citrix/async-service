@@ -7,14 +7,28 @@ Run `./gradlew.bat clean build` on Windows, or equivalent on macOS.
 This will produce a WAR file at `build\libs`
 
 ## Run it
+#### Stand-Alone Spring-Boot
 To start the service as a stand-alone Spring-Boot service type `java -jar .\build\libs\async-service-0.0.1-SNAPSHOT.war`
 
+#### Tomcat
+To start the service in Tomcat do the following:
+1. (Recommended) Rename your war file to something simple, such as `async-service.war`
+1. Copy the war file to your Tomcat's `\webapps` directory.
+1. Start Tomcat if it's not already running.
+
 ## Sanity Check
+#### Stand-Alone Spring-Boot
 If you ran it as a stand-alone Spring-Boot service then open a web browser and navigate to http://localhost:8083/api/ping
 
 NOTE: That is port 8083, not the usual port 8080.
 
 You should get back a response that says "pong".
+
+#### Tomcat
+If you ran it as a stand-alone Spring-Boot service then open a web browser and navigate to http://localhost:8080/async-service/api/ping
+
+You should get back a response that says "pong".
+
 
 ## Try it Out
 Let's show the benefits of using async in the outbound network calls from our service. First we'll show what
@@ -26,9 +40,6 @@ For example http://localhost:8083/api/sync/tenant/Customer1
 
 This will store the string "Customer1" in Thread Local Storage, make a synchronous outbound call, then return with
 whatever was store in Thread Local Storage.  That means that you should get the tenant's name, in this case `Customer1`.
-
-It will take 2 minutes for that API call to complete. If you make the client API calls in parallel 20 times, then since we have a max
-thread pool of 10 then it will take ~4 minutes total (20 calls / 10 threads in the pool * 2 minutes per invocation).
 
 ## Notes
 When running it as a stand-alone SpringBoot the thread pool is set to 10 threads.  You can see that by calling the
