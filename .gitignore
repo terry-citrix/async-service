@@ -1,6 +1,4 @@
 HELP.md
-.gradle/
-.gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
@@ -36,10 +34,3 @@ out/
 
 ### VS Code ###
 .vscode/
-.gradle/6.9.1/executionHistory/executionHistory.bin
-.gradle/6.9.1/executionHistory/executionHistory.lock
-.gradle/6.9.1/fileHashes/fileHashes.bin
-.gradle/6.9.1/fileHashes/fileHashes.lock
-.gradle/buildOutputCleanup/buildOutputCleanup.lock
-.gradle/buildOutputCleanup/outputFiles.bin
-.gradle/checksums/checksums.lock
