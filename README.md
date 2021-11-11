@@ -1,6 +1,8 @@
 # Async Service
 A small proof-of-concept on preserving Thread Local Storage when making async calls from a java service.
 
+NOTE: This is the sole creation of Thierry Duchastel, and it is solely a proof-of-concept. No support of any kind is implied or provided.
+
 ## Compile It
 Run `./gradlew.bat clean build` on Windows, or equivalent on macOS.
 
@@ -39,7 +41,7 @@ If you're running it as a stand-alone Spring-Boot service then access http://loc
 For example http://localhost:8083/api/sync/tenant/Customer1
 
 This will store the string "Customer1" in Thread Local Storage, make a synchronous outbound call, then return with
-whatever was store in Thread Local Storage.  That means that you should get the tenant's name, in this case `Customer1`.
+whatever was stored in Thread Local Storage.  That means that you should get the tenant's name, in this case `Customer1`.
 
 ## Notes
 When running it as a stand-alone SpringBoot the thread pool is set to 10 threads.  You can see that by calling the
