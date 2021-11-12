@@ -37,8 +37,10 @@ Let's show the benefits of using async in the outbound network calls from our se
 it's like with synchronous calls.
 
 If you're running it as a stand-alone Spring-Boot service then access http://localhost:8083/api/sync/tenant/{name}
-
 For example http://localhost:8083/api/sync/tenant/Customer1
+
+If you're running it as a Tomcat-hosted service then access http://localhost:8080/async-service/api/sync/tenant/{name}
+For example http://localhost:8080/async-service/api/sync/tenant/Customer1
 
 This will store the string "Customer1" in Thread Local Storage, make a synchronous outbound call, then return with
 whatever was stored in Thread Local Storage.  That means that you should get the tenant's name, in this case `Customer1`.
