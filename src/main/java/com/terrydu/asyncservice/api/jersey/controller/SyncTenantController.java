@@ -1,10 +1,14 @@
 package com.terrydu.asyncservice.api.jersey.controller;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -36,15 +40,24 @@ public class SyncTenantController {
         // Call external API that takes 2 minutes here.
         final HttpUriRequest request = new HttpGet(SERVICE_URL_15);
 
-        try {
-            final HttpResponse httpResponse = HttpClientBuilder.create().build().execute(request);
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                System.err.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": ERROR from the external network service call! Status returned: " + statusCode);
+        String response = "";
+        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+            try (CloseableHttpResponse httpResponse = httpclient.execute(request)) {
+                int statusCode = httpResponse.getCode();
+                if (statusCode != HttpStatus.SC_OK) {
+                    System.err.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": ERROR from the external network service call! Status returned: " + statusCode);
+                } else {
+                    HttpEntity entity = httpResponse.getEntity();
+                    try {
+                        response = EntityUtils.toString(entity);
+                    } catch (ParseException ex) {
+                        System.err.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Error parsing response after calling " + SERVICE_URL_15);
+                    }
+
+                }
             }
         } catch (IOException ex) {
             System.err.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": ERROR waiting for the external network service call!");
-            // Other than logging the error we are ignoring this exception.
         }
 
         if (!tenantName.equals(threadLocalTenantName.get())) {
@@ -54,7 +67,7 @@ public class SyncTenantController {
         long endTime = System.currentTimeMillis();
         long timeElapsed = endTime - startTime;
         System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Completing request for '/api/jersey/sync/tenant/" + tenantName + "' taking " + timeElapsed + " ms");
-        return threadLocalTenantName.get();
+        return threadLocalTenantName.get() + "-" + response;
     }
 
 }

@@ -26,6 +26,7 @@ public class AsyncTenantController {
         ThreadLocal<String> threadLocalTenantName = new ThreadLocal<>();
         threadLocalTenantName.set(tenantName);
 
+        String httpResponse = "";
         // TODO: Call external API that takes 2 seconds here.
 
 
@@ -37,7 +38,7 @@ public class AsyncTenantController {
         long endTime = System.currentTimeMillis();
         long timeElapsed = endTime - startTime;
         System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Completing request for '/api/jersey/async/tenant/" + tenantName + "' taking " + timeElapsed + " ms");
-        return threadLocalTenantName.get();
+        return threadLocalTenantName.get() + "-" + httpResponse;
     }
 
 }
