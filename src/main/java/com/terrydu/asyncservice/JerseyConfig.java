@@ -1,6 +1,6 @@
 package com.terrydu.asyncservice;
 
-import com.terrydu.asyncservice.api.controller.*;
+import com.terrydu.asyncservice.api.jersey.controller.*;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;

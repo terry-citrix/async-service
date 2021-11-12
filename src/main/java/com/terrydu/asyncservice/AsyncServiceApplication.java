@@ -7,7 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @ComponentScan({
 		"com.terrydu.asyncservice",
-		"com.terrydu.asyncservice.api.controller"})
+		"com.terrydu.asyncservice.api.jersey.controller"})
 public class AsyncServiceApplication {
 
 	public static void main(String[] args) {

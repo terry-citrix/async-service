@@ -1,4 +1,4 @@
-package com.terrydu.asyncservice.api.controller;
+package com.terrydu.asyncservice.api.jersey.controller;
 
 import org.apache.hc.client5.http.async.methods.*;
 import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
@@ -21,9 +21,10 @@ import java.util.concurrent.Future;
 /**
  * NOTE: Whenever you add a new Controller class, be sure to update JerseyConfig.java!
  */
-@Path("/api/terryapachehttpasyncclient/tenant")
+@Path("/api/jersey/terryapachehttpasyncclient/tenant")
 public class TerryApacheHttpAsyncClient {
 
+    private static final String SERVICE_URL_5 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait5";
     private static final String SERVICE_URL_15 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait15";
     private static final String SERVICE_URL_60 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait60";
     private static final String SERVICE_URL_120 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait120";
@@ -32,7 +33,7 @@ public class TerryApacheHttpAsyncClient {
     @Path("/{tenantName}")
     @Produces({ MediaType.APPLICATION_JSON })
     public String getTenantByName(@PathParam("tenantName") String tenantName) {
-        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Handling request for '/api/async/tenant/" + tenantName + "'");
+        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Handling request for '/api/jersey/terryapachehttpasyncclient/tenant/" + tenantName + "'");
         long startTime = System.currentTimeMillis();
 
         ThreadLocal<String> threadLocalTenantName = new ThreadLocal<>();
@@ -113,7 +114,7 @@ public class TerryApacheHttpAsyncClient {
 
         long endTime = System.currentTimeMillis();
         long timeElapsed = endTime - startTime;
-        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Completing request for '/api/async/tenant/" + tenantName + "' taking " + timeElapsed + " ms");
+        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Completing request for '/api/jersey/terryapachehttpasyncclient/tenant/" + tenantName + "' taking " + timeElapsed + " ms");
         return threadLocalTenantName.get();
     }
 
