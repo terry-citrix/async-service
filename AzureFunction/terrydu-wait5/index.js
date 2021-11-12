@@ -1,7 +1,7 @@
 module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
 
-    await new Promise(resolve => setTimeout(resolve, 15 * 1000));
+    await new Promise(resolve => setTimeout(resolve, 5 * 1000));
 
     const name = (req.query.name || (req.body && req.body.name));
     const responseMessage = name
