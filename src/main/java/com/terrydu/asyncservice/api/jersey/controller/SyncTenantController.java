@@ -1,5 +1,4 @@
-package com.terrydu.asyncservice.api.controller;
-
+package com.terrydu.asyncservice.api.jersey.controller;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -17,7 +16,7 @@ import java.io.IOException;
 /**
  * NOTE: Whenever you add a new Controller class, be sure to update JerseyConfig.java!
  */
-@Path("/api/sync/tenant")
+@Path("/api/jersey/sync/tenant")
 public class SyncTenantController {
 
     private static final String SERVICE_URL_15 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait15";
@@ -28,7 +27,7 @@ public class SyncTenantController {
     @Path("/{tenantName}")
     @Produces({ MediaType.APPLICATION_JSON })
     public String getTenantByName(@PathParam("tenantName") String tenantName) {
-        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Handling request for '/api/sync/tenant/" + tenantName + "'");
+        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Handling request for '/api/jersey/sync/tenant/" + tenantName + "'");
         long startTime = System.currentTimeMillis();
 
         ThreadLocal<String> threadLocalTenantName = new ThreadLocal<>();
@@ -54,7 +53,7 @@ public class SyncTenantController {
 
         long endTime = System.currentTimeMillis();
         long timeElapsed = endTime - startTime;
-        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Completing request for '/api/sync/tenant/" + tenantName + "' taking " + timeElapsed + " ms");
+        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Completing request for '/api/jersey/sync/tenant/" + tenantName + "' taking " + timeElapsed + " ms");
         return threadLocalTenantName.get();
     }
 

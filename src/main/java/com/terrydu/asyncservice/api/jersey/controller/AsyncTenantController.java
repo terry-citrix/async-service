@@ -1,4 +1,4 @@
-package com.terrydu.asyncservice.api.controller;
+package com.terrydu.asyncservice.api.jersey.controller;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -9,7 +9,7 @@ import javax.ws.rs.core.MediaType;
 /**
  * NOTE: Whenever you add a new Controller class, be sure to update JerseyConfig.java!
  */
-@Path("/api/async/tenant")
+@Path("/api/jersey/async/tenant")
 public class AsyncTenantController {
 
     private static final String SERVICE_URL_15 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait15";
@@ -20,7 +20,7 @@ public class AsyncTenantController {
     @Path("/{tenantName}")
     @Produces({ MediaType.APPLICATION_JSON })
     public String getTenantByName(@PathParam("tenantName") String tenantName) {
-        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Handling request for '/api/async/tenant/" + tenantName + "'");
+        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Handling request for '/api/jersey/async/tenant/" + tenantName + "'");
         long startTime = System.currentTimeMillis();
 
         ThreadLocal<String> threadLocalTenantName = new ThreadLocal<>();
@@ -36,7 +36,7 @@ public class AsyncTenantController {
 
         long endTime = System.currentTimeMillis();
         long timeElapsed = endTime - startTime;
-        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Completing request for '/api/async/tenant/" + tenantName + "' taking " + timeElapsed + " ms");
+        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Completing request for '/api/jersey/async/tenant/" + tenantName + "' taking " + timeElapsed + " ms");
         return threadLocalTenantName.get();
     }
 
