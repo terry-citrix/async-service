@@ -9,9 +9,11 @@ import javax.ws.rs.core.MediaType;
 /**
  * NOTE: Whenever you add a new Controller class, be sure to update JerseyConfig.java!
  */
-@Path("/api/jersey/async/tenant")
+// This is relative to http://hostname/api/jersey
+@Path("/async/tenant")
 public class AsyncTenantController {
 
+    private static final String SERVICE_URL_5 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait5";
     private static final String SERVICE_URL_15 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait15";
     private static final String SERVICE_URL_60 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait60";
     private static final String SERVICE_URL_120 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait120";
@@ -26,6 +28,7 @@ public class AsyncTenantController {
         ThreadLocal<String> threadLocalTenantName = new ThreadLocal<>();
         threadLocalTenantName.set(tenantName);
 
+        String httpResponse = "";
         // TODO: Call external API that takes 2 seconds here.
 
 
@@ -37,7 +40,7 @@ public class AsyncTenantController {
         long endTime = System.currentTimeMillis();
         long timeElapsed = endTime - startTime;
         System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Completing request for '/api/jersey/async/tenant/" + tenantName + "' taking " + timeElapsed + " ms");
-        return threadLocalTenantName.get();
+        return threadLocalTenantName.get() + "-" + httpResponse;
     }
 
 }

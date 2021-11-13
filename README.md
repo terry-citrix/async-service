@@ -20,14 +20,16 @@ To start the service in Tomcat do the following:
 
 ## Sanity Check
 #### Stand-Alone Spring-Boot
-If you ran it as a stand-alone Spring-Boot service then open a web browser and navigate to http://localhost:8083/api/ping
+If you ran it as a stand-alone Spring-Boot service then open a web browser and navigate to http://localhost:8083/api/jersey/ping 
+or http://localhost:8083/api/mvc/ping
 
 NOTE: That is port 8083, not the usual port 8080.
 
 You should get back a response that says "pong".
 
 #### Tomcat
-If you ran it as a stand-alone Spring-Boot service then open a web browser and navigate to http://localhost:8080/async-service/api/ping
+If you ran it as a stand-alone Spring-Boot service then open a web browser and navigate to http://localhost:8080/async-service/api/jersey/ping
+or http://localhost:8080/async-service/api/mvc/ping
 
 You should get back a response that says "pong".
 
@@ -41,6 +43,9 @@ For example http://localhost:8083/api/jersey/sync/tenant/Customer1
 
 If you're running it as a Tomcat-hosted service then access http://localhost:8080/async-service/api/jersey/sync/tenant/{name}
 For example http://localhost:8080/async-service/api/jersey/sync/tenant/Customer1
+
+For Spring MVC it's similar but the path has 'mvc' instead of 'spring'. For example:
+http://localhost:8080/async-service/api/mvc/sync/tenant/Customer1
 
 This will store the string "Customer1" in Thread Local Storage, make a synchronous outbound call, then return with
 whatever was stored in Thread Local Storage.  That means that you should get the tenant's name, in this case `Customer1`.
