@@ -9,7 +9,8 @@ import javax.ws.rs.core.MediaType;
 /**
  * NOTE: Whenever you add a new Controller class, be sure to update JerseyConfig.java!
  */
-@Path("/api/jersey/async/tenant")
+// This is relative to http://hostname/api/jersey
+@Path("/async/tenant")
 public class AsyncTenantController {
 
     private static final String SERVICE_URL_15 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait15";

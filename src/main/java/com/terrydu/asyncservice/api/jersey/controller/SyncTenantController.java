@@ -20,7 +20,8 @@ import java.io.IOException;
 /**
  * NOTE: Whenever you add a new Controller class, be sure to update JerseyConfig.java!
  */
-@Path("/api/jersey/sync/tenant")
+// This is relative to http://hostname/api/jersey
+@Path("sync/tenant")
 public class SyncTenantController {
 
     private static final String SERVICE_URL_15 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait15";

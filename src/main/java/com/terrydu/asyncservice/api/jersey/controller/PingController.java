@@ -8,7 +8,8 @@ import javax.ws.rs.core.MediaType;
 /**
  * NOTE: Whenever you add a new Controller class, be sure to update JerseyConfig.java!
  */
-@Path("/api/jersey/ping")
+// This is relative to http://hostname/api/jersey
+@Path("/ping")
 public class PingController {
 
     @GET
