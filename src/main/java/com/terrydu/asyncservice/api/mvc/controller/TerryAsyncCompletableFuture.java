@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 @RestController
 public class TerryAsyncCompletableFuture {
@@ -47,7 +48,9 @@ public class TerryAsyncCompletableFuture {
                     .setPath("/api/terrydu-wait15")
                     .build();
 
-            final CompletableFuture<SimpleHttpResponse> future = (CompletableFuture<SimpleHttpResponse>) client.execute(
+            CompletableFuture<SimpleHttpResponse> completableFuture = new CompletableFuture<>();
+
+            final Future<SimpleHttpResponse> future = client.execute(
                     SimpleRequestProducer.create(request),
                     SimpleResponseConsumer.create(),
                     new FutureCallback<SimpleHttpResponse>() {
@@ -55,29 +58,8 @@ public class TerryAsyncCompletableFuture {
                         @Override
                         public void completed(final SimpleHttpResponse httpResponse) {
                             System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
-                                    + ": " + request + "->" + new StatusLine(httpResponse));
-                            SimpleBody httpBody = httpResponse.getBody();
-                            String textResponse = httpBody.getBodyText();
-
-                            if (!tenantName.equals(threadLocalTenantName.get())) {
-                                System.err.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
-                                        + ": ERROR - The value in thread local storage (" + threadLocalTenantName.get()
-                                        + ") does not match the correct value (" + tenantName + ")");
-                            }
-
-                            long endTime = System.currentTimeMillis();
-                            long timeElapsed = endTime - startTime;
-                            System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
-                                    + ": Completing request for '/api/mvc/terryasynccompletable/tenant/" + tenantName
-                                    + "' taking " + timeElapsed + " ms");
-                            try {
-                                PrintWriter printWriter = servletResponse.getWriter();
-                                printWriter.println(threadLocalTenantName.get() + "-" + textResponse);
-                                printWriter.close();
-                            } catch (IOException ex) {
-                                System.err.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
-                                        + ": ERROR IOException during writing response back to device for " + request + " -> " + ex.getMessage());
-                            }
+                                    + ": Completed for " + request + " -> " + new StatusLine(httpResponse));
+                            completableFuture.complete(httpResponse);
                         }
 
                         @Override
@@ -94,7 +76,35 @@ public class TerryAsyncCompletableFuture {
 
                     });
 
-            return future;
+            completableFuture.thenApply(httpResponse -> {
+                System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
+                        + ": thenApply for " + request + " -> " + new StatusLine(httpResponse));
+                String textResponse = httpResponse.getBody().getBodyText();
+
+                if (!tenantName.equals(threadLocalTenantName.get())) {
+                    System.err.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
+                            + ": ERROR - The value in thread local storage (" + threadLocalTenantName.get()
+                            + ") does not match the correct value (" + tenantName + ")");
+                }
+
+                long endTime = System.currentTimeMillis();
+                long timeElapsed = endTime - startTime;
+                System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
+                        + ": Completing request for '/api/mvc/terryasynccompletable/tenant/" + tenantName
+                        + "' taking " + timeElapsed + " ms");
+                try {
+                    PrintWriter printWriter = servletResponse.getWriter();
+                    printWriter.println(threadLocalTenantName.get() + "-" + textResponse);
+                    printWriter.close();
+                } catch (IOException ex) {
+                    System.err.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
+                            + ": ERROR IOException during writing response back to device for " + request + " -> " + ex.getMessage());
+                }
+                return httpResponse;
+            });
+
+            return completableFuture;
+
         } catch (IOException ex) {
             String errorMsg = "Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": ERROR ->" + ex.getMessage();
             System.err.println(errorMsg);
