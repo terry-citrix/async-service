@@ -25,9 +25,7 @@ public class TerryAsyncHttpClient {
 
     @GetMapping("/api/mvc/terryasynchttpclient/tenant/{tenantName}")
     @Async
-    public CompletableFuture syncTenant(@PathVariable String tenantName,
-                                        HttpServletRequest servletRequest,
-                                        HttpServletResponse servletResponse) {
+    public CompletableFuture<String> syncTenant(@PathVariable String tenantName) {
         System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
                 + ": Handling request for '/api/mvc/terryasynchttpclient/tenant/" + tenantName + "'");
         long startTime = System.currentTimeMillis();
@@ -37,7 +35,7 @@ public class TerryAsyncHttpClient {
 
         // Call external API that takes a long time here.
         AsyncHttpClient asyncHttpClient = asyncHttpClient();
-        CompletableFuture<Response> whenResponse = asyncHttpClient
+        CompletableFuture<String> whenResponse = asyncHttpClient
             .prepareGet(SERVICE_URL_15)
             .execute()
             .toCompletableFuture()
@@ -55,7 +53,7 @@ public class TerryAsyncHttpClient {
                         + ": thenApply() for /api/mvc/terryasynchttpclient/tenant/");
                 String textResponse = response.getResponseBody();
 
-                if (!tenantName.equals(threadLocalTenantName.get())) {
+                if (tenantName != null && !tenantName.equals(threadLocalTenantName.get())) {
                     System.err.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
                             + ": ERROR - The value in thread local storage (" + threadLocalTenantName.get()
                             + ") does not match the correct value (" + tenantName + ")");
@@ -66,17 +64,9 @@ public class TerryAsyncHttpClient {
                 System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
                         + ": Completing request for '/api/mvc/terryasynchttpclient/tenant/" + tenantName
                         + "' taking " + timeElapsed + " ms");
-                try {
-                    PrintWriter printWriter = servletResponse.getWriter();
-                    printWriter.println(threadLocalTenantName.get() + "-" + textResponse);
-                    printWriter.close();
-                } catch (IOException ex) {
-                    System.err.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
-                            + ": ERROR IOException during writing response back to device for '/api/mvc/terryasynchttpclient/tenant/' -> "
-                            + ex.getMessage());
-                }
+
                 try { asyncHttpClient.close(); } catch (IOException ex) { System.err.println("ERROR closing asyncHttpClient"); }
-                return response;
+                return threadLocalTenantName.get() + "-" + textResponse;
             });
         return whenResponse;
     }
