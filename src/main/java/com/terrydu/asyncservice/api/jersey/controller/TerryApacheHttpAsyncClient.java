@@ -21,7 +21,8 @@ import java.util.concurrent.Future;
 /**
  * NOTE: Whenever you add a new Controller class, be sure to update JerseyConfig.java!
  */
-@Path("/api/jersey/terryapachehttpasyncclient/tenant")
+// This is relative to http://hostname/api/jersey
+@Path("/terryapachehttpasyncclient/tenant")
 public class TerryApacheHttpAsyncClient {
 
     private static final String SERVICE_URL_5 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait5";
