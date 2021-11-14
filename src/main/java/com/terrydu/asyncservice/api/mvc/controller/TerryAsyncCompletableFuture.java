@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
@@ -58,8 +57,6 @@ public class TerryAsyncCompletableFuture {
                     public void completed(final SimpleHttpResponse httpResponse) {
                         System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
                                 + ": Completed for " + request + " -> " + new StatusLine(httpResponse));
-                        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
-                                + ": thenApply for " + request + " -> " + new StatusLine(httpResponse));
                         String textResponse = httpResponse.getBody().getBodyText();
 
                         if (tenantName != null && !tenantName.equals(threadLocalTenantName.get())) {
