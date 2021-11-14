@@ -36,53 +36,48 @@ public class TerryAsyncHttpClient {
         threadLocalTenantName.set(tenantName);
 
         // Call external API that takes a long time here.
-        try (AsyncHttpClient asyncHttpClient = asyncHttpClient();) {
-            CompletableFuture<Response> whenResponse = asyncHttpClient
-                    .prepareGet(SERVICE_URL_15)
-                    .execute()
-                    .toCompletableFuture()
-                    .exceptionally(t -> {
-                        String errorMsg = "Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
-                                + ": ERROR - failed case for '/api/mvc/terryasynchttpclient/tenant/" + tenantName
-                                + " -> " + t.getMessage();
-                        System.err.println(errorMsg);
-                        throw new RuntimeException(errorMsg, t);
-                    })
-                    .thenApply(response -> {
-                        /*  Do something with the Response */
-                        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
-                                + ": thenApply() for /api/mvc/terryasynchttpclient/tenant/");
-                        String textResponse = response.getResponseBody();
+        AsyncHttpClient asyncHttpClient = asyncHttpClient();
+        CompletableFuture<Response> whenResponse = asyncHttpClient
+            .prepareGet(SERVICE_URL_15)
+            .execute()
+            .toCompletableFuture()
+            .exceptionally(t -> {
+                String errorMsg = "Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
+                        + ": ERROR - failed case for '/api/mvc/terryasynchttpclient/tenant/" + tenantName
+                        + " -> " + t.getMessage();
+                System.err.println(errorMsg);
+                try { asyncHttpClient.close(); } catch (IOException ex) { System.err.println("ERROR closing asyncHttpClient"); }
+                throw new RuntimeException(errorMsg, t);
+            })
+            .thenApply(response -> {
+                /*  Do something with the Response */
+                System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
+                        + ": thenApply() for /api/mvc/terryasynchttpclient/tenant/");
+                String textResponse = response.getResponseBody();
 
-                        if (!tenantName.equals(threadLocalTenantName.get())) {
-                            System.err.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
-                                    + ": ERROR - The value in thread local storage (" + threadLocalTenantName.get()
-                                    + ") does not match the correct value (" + tenantName + ")");
-                        }
+                if (!tenantName.equals(threadLocalTenantName.get())) {
+                    System.err.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
+                            + ": ERROR - The value in thread local storage (" + threadLocalTenantName.get()
+                            + ") does not match the correct value (" + tenantName + ")");
+                }
 
-                        long endTime = System.currentTimeMillis();
-                        long timeElapsed = endTime - startTime;
-                        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
-                                + ": Completing request for '/api/mvc/terryasynchttpclient/tenant/" + tenantName
-                                + "' taking " + timeElapsed + " ms");
-                        try {
-                            PrintWriter printWriter = servletResponse.getWriter();
-                            printWriter.println(threadLocalTenantName.get() + "-" + textResponse);
-                            printWriter.close();
-                        } catch (IOException ex) {
-                            System.err.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
-                                    + ": ERROR IOException during writing response back to device for '/api/mvc/terryasynchttpclient/tenant/' -> "
-                                    + ex.getMessage());
-                        }
-                        return response;
-                    });
-            return whenResponse;
-
-        } catch (IOException ex) {
-            String errorMsg = "Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
-                    + ": ERROR - IOException for for '/api/mvc/terryasynchttpclient/tenant/' -> " + ex.getMessage();
-            System.err.println(errorMsg);
-            throw new RuntimeException(errorMsg, ex);
-        }
+                long endTime = System.currentTimeMillis();
+                long timeElapsed = endTime - startTime;
+                System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
+                        + ": Completing request for '/api/mvc/terryasynchttpclient/tenant/" + tenantName
+                        + "' taking " + timeElapsed + " ms");
+                try {
+                    PrintWriter printWriter = servletResponse.getWriter();
+                    printWriter.println(threadLocalTenantName.get() + "-" + textResponse);
+                    printWriter.close();
+                } catch (IOException ex) {
+                    System.err.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
+                            + ": ERROR IOException during writing response back to device for '/api/mvc/terryasynchttpclient/tenant/' -> "
+                            + ex.getMessage());
+                }
+                try { asyncHttpClient.close(); } catch (IOException ex) { System.err.println("ERROR closing asyncHttpClient"); }
+                return response;
+            });
+        return whenResponse;
     }
 }
