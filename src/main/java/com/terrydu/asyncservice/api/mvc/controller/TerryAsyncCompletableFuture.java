@@ -1,11 +1,11 @@
 package com.terrydu.asyncservice.api.mvc.controller;
 
-import com.terrydu.asyncservice.common.FutureCallbackWrapper;
-import com.terrydu.asyncservice.common.TenantContext;
 import org.apache.hc.client5.http.async.methods.*;
 import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
 import org.apache.hc.client5.http.impl.async.HttpAsyncClients;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.message.StatusLine;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 @RestController
 public class TerryAsyncCompletableFuture {
@@ -30,13 +32,12 @@ public class TerryAsyncCompletableFuture {
                                         HttpServletResponse servletResponse) {
         System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
                 + ": Handling request for '/api/mvc/terryasynccompletable/tenant/" + tenantName + "'");
+        long startTime = System.currentTimeMillis();
 
-        // Set Thread Local Storage
-        TenantContext.tenantName.set(tenantName);
+        ThreadLocal<String> threadLocalTenantName = new ThreadLocal<>();
+        threadLocalTenantName.set(tenantName);
 
-        //
         // Call external API that takes a long time here.
-        //
         CloseableHttpAsyncClient client = HttpAsyncClients.custom().build();
         client.start();
 
@@ -46,33 +47,49 @@ public class TerryAsyncCompletableFuture {
                 .setPath("/api/terrydu-wait15")
                 .build();
 
-        // We need a CompletableFuture, but client.execute() returns a Future. So we create another async mechanism.
-        // See https://stackoverflow.com/questions/23301598/transform-java-future-into-a-completablefuture
         CompletableFuture<String> completableFuture = new CompletableFuture<>();
 
-        FutureCallbackWrapper wrapper = new FutureCallbackWrapper(
-                servletRequest,             // Not actually needed, but useful for debugging.
-                client,                     // The async client to the external service call, which needs to be closed.
-                completableFuture,          // This CompletableFuture needs to be completed later on.
-                this::callbackFunction);    // Gives us an option to do more work after the external service call.
-        client.execute(
+        final Future<SimpleHttpResponse> future = client.execute(
                 SimpleRequestProducer.create(request),
                 SimpleResponseConsumer.create(),
-                wrapper);
+                new FutureCallback<SimpleHttpResponse>() {
+                    @Override
+                    public void completed(final SimpleHttpResponse httpResponse) {
+                        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
+                                + ": Completed for " + request + " -> " + new StatusLine(httpResponse));
+                        String textResponse = httpResponse.getBody().getBodyText();
+
+                        if (tenantName != null && !tenantName.equals(threadLocalTenantName.get())) {
+                            System.err.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
+                                    + ": ERROR - The value in thread local storage (" + threadLocalTenantName.get()
+                                    + ") does not match the correct value (" + tenantName + ")");
+                        }
+
+                        long endTime = System.currentTimeMillis();
+                        long timeElapsed = endTime - startTime;
+                        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
+                                + ": Completing request for '/api/mvc/terryasynccompletable/tenant/" + tenantName
+                                + "' taking " + timeElapsed + " ms");
+                        try { client.close(); } catch (IOException ex) { System.err.println("ERROR closing CloseableHttpAsyncClient"); }
+
+                        completableFuture.complete(threadLocalTenantName.get() + "-" + textResponse);
+                    }
+
+                    @Override
+                    public void failed(final Exception ex) {
+                        System.err.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
+                                + ": ERROR - failed case for " + request + "->" + ex);
+                        try { client.close(); } catch (IOException ex2) { System.err.println("ERROR closing CloseableHttpAsyncClient"); }
+                    }
+
+                    @Override
+                    public void cancelled() {
+                        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
+                                + ": ERROR - cancelled case for " + request);
+                        try { client.close(); } catch (IOException ex) { System.err.println("ERROR closing CloseableHttpAsyncClient"); }
+                    }
+                });
 
         return completableFuture;
-    }
-
-    /**
-     * Allows us to do more work after the external service call.
-     */
-    public String callbackFunction(SimpleHttpResponse httpResponse) {
-        String tenantName = TenantContext.tenantName.get();
-
-        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName
-                + ": Got external service reply from " + SERVICE_URL_15);
-        String textResponse = httpResponse.getBody().getBodyText();
-
-        return tenantName + "-" + textResponse;
     }
 }
