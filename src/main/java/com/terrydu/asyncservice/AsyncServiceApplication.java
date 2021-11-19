@@ -2,11 +2,14 @@ package com.terrydu.asyncservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.context.annotation.ComponentScan;
 
+@ServletComponentScan
 @SpringBootApplication
 @ComponentScan({
 		"com.terrydu.asyncservice",
+		"com.terrydu.asyncservice.api.servlet.controller",
 		"com.terrydu.asyncservice.api.mvc.controller",
 		"com.terrydu.asyncservice.api.jersey.controller"})
 public class AsyncServiceApplication {
