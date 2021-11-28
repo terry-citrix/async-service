@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
+/**
+ *    http://localhost:8083/api/mvc/sync/tenant/{tenantName}
+ */
 @RestController
 public class SyncTenantController {
 
@@ -23,7 +26,10 @@ public class SyncTenantController {
     private static final String SERVICE_URL_60 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait60";
     private static final String SERVICE_URL_120 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait120";
 
-    @GetMapping("/api/mvc/sync/tenant/{tenantName}")
+    /**
+     * NOTE: This path mapping is relative to "/api/mvc"
+     */
+    @GetMapping("/sync/tenant/{tenantName}")
     public String syncTenant(@PathVariable String tenantName) {
         System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Handling request for '/api/mvc/sync/tenant/" + tenantName + "'");
         long startTime = System.currentTimeMillis();
@@ -31,7 +37,7 @@ public class SyncTenantController {
         ThreadLocal<String> threadLocalTenantName = new ThreadLocal<>();
         threadLocalTenantName.set(tenantName);
 
-        // Call external API that takes 2 minutes here.
+        // Call external API that takes 15 seconds here.
         final HttpUriRequest request = new HttpGet(SERVICE_URL_15);
 
         String response = "";
