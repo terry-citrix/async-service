@@ -18,6 +18,7 @@ dependencies {
 	// Use any version that you'd like.
 	implementation 'org.apache.httpcomponents:httpclient'
 	implementation 'org.apache.httpcomponents.client5:httpclient5:5.1.1'
+	implementation 'com.google.guava:guava:29.0-jre'
 
 	implementation(platform("org.asynchttpclient:async-http-client:2.12.3"))
 	implementation 'org.asynchttpclient:async-http-client:2.12.3'
