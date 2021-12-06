@@ -8,9 +8,9 @@ import org.springframework.core.annotation.Order;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ServletInitializer extends SpringBootServletInitializer {
 
-	@Override
-	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		return application.sources(AsyncServiceApplication.class);
-	}
+  @Override
+  protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+    return application.sources(AsyncServiceApplication.class);
+  }
 
 }

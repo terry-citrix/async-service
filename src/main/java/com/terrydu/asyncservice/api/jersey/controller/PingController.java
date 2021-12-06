@@ -12,10 +12,10 @@ import javax.ws.rs.core.MediaType;
 @Path("/ping")
 public class PingController {
 
-    @GET
-    @Produces({ MediaType.APPLICATION_JSON })
-    public String ping() {
-        System.out.println("Handling request for '/api/jersey/ping' on thread " + Thread.currentThread().getName());
-        return "pong";
-    }
+  @GET
+  @Produces({MediaType.APPLICATION_JSON})
+  public String ping() {
+    System.out.println("Handling request for '/api/jersey/ping' on thread " + Thread.currentThread().getName());
+    return "pong";
+  }
 }
