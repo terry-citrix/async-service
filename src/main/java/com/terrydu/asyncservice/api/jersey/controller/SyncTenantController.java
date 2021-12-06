@@ -10,6 +10,9 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -28,12 +31,13 @@ public class SyncTenantController {
     private static final String SERVICE_URL_15 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait15";
     private static final String SERVICE_URL_60 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait60";
     private static final String SERVICE_URL_120 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait120";
+    private static final Logger logger = LoggerFactory.getLogger(SyncTenantController.class);
 
     @GET
     @Path("/{tenantName}")
     @Produces({ MediaType.APPLICATION_JSON })
     public String getTenantByName(@PathParam("tenantName") String tenantName) {
-        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Handling request for '/api/jersey/sync/tenant/" + tenantName + "'");
+        logger.info("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Handling request for '/api/jersey/sync/tenant/" + tenantName + "'");
         long startTime = System.currentTimeMillis();
 
         ThreadLocal<String> threadLocalTenantName = new ThreadLocal<>();
@@ -47,28 +51,28 @@ public class SyncTenantController {
             try (CloseableHttpResponse httpResponse = httpclient.execute(request)) {
                 int statusCode = httpResponse.getCode();
                 if (statusCode != HttpStatus.SC_OK) {
-                    System.err.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": ERROR from the external network service call! Status returned: " + statusCode);
+                    logger.error("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": ERROR from the external network service call! Status returned: " + statusCode);
                 } else {
                     HttpEntity entity = httpResponse.getEntity();
                     try {
                         response = EntityUtils.toString(entity);
                     } catch (ParseException ex) {
-                        System.err.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Error parsing response after calling " + SERVICE_URL_15);
+                        logger.error("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Error parsing response after calling " + SERVICE_URL_15);
                     }
 
                 }
             }
         } catch (IOException ex) {
-            System.err.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": ERROR waiting for the external network service call!");
+            logger.error("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": ERROR waiting for the external network service call!");
         }
 
         if (!tenantName.equals(threadLocalTenantName.get())) {
-            System.err.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": ERROR - The value in thread local storage (" + threadLocalTenantName.get() + ") does not match the correct value (" + tenantName + ")");
+            logger.error("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": ERROR - The value in thread local storage (" + threadLocalTenantName.get() + ") does not match the correct value (" + tenantName + ")");
         }
 
         long endTime = System.currentTimeMillis();
         long timeElapsed = endTime - startTime;
-        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Completing request for '/api/jersey/sync/tenant/" + tenantName + "' taking " + timeElapsed + " ms");
+        logger.info("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Completing request for '/api/jersey/sync/tenant/" + tenantName + "' taking " + timeElapsed + " ms");
         return threadLocalTenantName.get() + "-" + response;
     }
 

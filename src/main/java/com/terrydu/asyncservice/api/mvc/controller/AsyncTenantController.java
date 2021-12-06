@@ -1,33 +1,36 @@
-package com.terrydu.asyncservice.api.jersey.controller;
-
+package com.terrydu.asyncservice.api.mvc.controller;
 
 import com.terrydu.asyncservice.TenantContext;
 import com.terrydu.asyncservice.executors.OnResponseReceived;
 import com.terrydu.asyncservice.executors.OnResponseReceivedExecutor;
-import org.asynchttpclient.*;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.ListenableFuture;
+import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.DeferredResult;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.container.AsyncResponse;
-import javax.ws.rs.container.Suspended;
+import java.util.concurrent.CompletableFuture;
 
-import static org.asynchttpclient.Dsl.*;
+import static org.asynchttpclient.Dsl.asyncHttpClient;
 
 /**
- * NOTE: Whenever you add a new Controller class, be sure to update JerseyConfig.java!
+ *    http://localhost:8083/api/mvc/async/tenant/{tenantName}
  */
-// This is relative to http://hostname/api/jersey
-@Path("/async/tenant")
+@RestController
 public class AsyncTenantController {
 
     private static final String SERVICE_URL_5 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait5";
     private static final String SERVICE_URL_15 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait15";
     private static final String SERVICE_URL_60 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait60";
     private static final String SERVICE_URL_120 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait120";
+
     private static final Logger logger = LoggerFactory.getLogger(AsyncTenantController.class);
     private final OnResponseReceivedExecutor onResponseReceivedExecutor;
 
@@ -36,18 +39,23 @@ public class AsyncTenantController {
         this.onResponseReceivedExecutor = onResponseReceivedExecutor;
     }
 
-    @GET
-    @Path("/{tenantName}")
-    public void getTenantByName(@PathParam("tenantName") String tenantName, @Suspended final AsyncResponse inAsyncResponse) {
-        logger.info("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Handling request for '/api/jersey/async/tenant/" + tenantName + "'");
+    /**
+     * NOTE: This path mapping is relative to "/api/mvc"
+     */
+    @GetMapping("/async/tenant/{tenantName}")
+    public DeferredResult<ResponseEntity<String>> asyncTenant(@PathVariable String tenantName) {
+        logger.info("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Handling request for '/api/mvc/async/tenant/" + tenantName + "'");
         long startTime = System.currentTimeMillis();
+        DeferredResult<ResponseEntity<String>> asyncResponse = new DeferredResult<>();
         ThreadLocal<String> threadLocalTenantName = new ThreadLocal<>();
         threadLocalTenantName.set(tenantName);
         AsyncHttpClient asyncHttpClient = asyncHttpClient();
         ListenableFuture<Response> whenResponse = asyncHttpClient.prepareGet(SERVICE_URL_15).execute();
         TenantContext tenantContext = new TenantContext();
         tenantContext.setTenantName(tenantName);
-        OnResponseReceived onResponseReceived = new OnResponseReceived(whenResponse, startTime, tenantContext, inAsyncResponse);
+        OnResponseReceived onResponseReceived = new OnResponseReceived(whenResponse, startTime, tenantContext, asyncResponse);
         whenResponse.addListener(onResponseReceived, onResponseReceivedExecutor.getOnResponseReceivedExecutor());
+        return asyncResponse;
     }
 }
+

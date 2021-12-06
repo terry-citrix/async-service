@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.terrydu'
-version = '0.0.1-SNAPSHOT'
+//version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
@@ -18,7 +18,6 @@ dependencies {
 	// Use any version that you'd like.
 	implementation 'org.apache.httpcomponents:httpclient'
 	implementation 'org.apache.httpcomponents.client5:httpclient5:5.1.1'
-	implementation 'com.google.guava:guava:29.0-jre'
 
 	// CEM uses version 2.4 of Jersey.
 	implementation "org.glassfish.jersey.containers:jersey-container-servlet:2.4"
@@ -27,6 +26,9 @@ dependencies {
 
 	// CEM uses Spring Framework 5.3.7, which is nearly the latest. Hence using the latest Spring Boot framework should be a good match.
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.asynchttpclient:async-http-client:2.12.3'
+	implementation 'com.google.guava:guava:29.0-jre'
+
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }

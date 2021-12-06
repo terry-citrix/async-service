@@ -11,7 +11,8 @@ import org.springframework.context.annotation.ComponentScan;
 		"com.terrydu.asyncservice",
 		"com.terrydu.asyncservice.api.servlet.controller",
 		"com.terrydu.asyncservice.api.mvc.controller",
-		"com.terrydu.asyncservice.api.jersey.controller"})
+		"com.terrydu.asyncservice.api.jersey.controller",
+		"com.terrydu.asyncservice.executors"})
 public class AsyncServiceApplication {
 
 	public static void main(String[] args) {
