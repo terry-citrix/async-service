@@ -54,12 +54,6 @@ public class HttpService {
     return stringBuilder.toString();
   }
 
-  /**
-   * Deletes the entity having supplied id.
-   *
-   * @param inId Id of entity to delete.
-   * @return Observable that will receive completion, or exception if error occurs.
-   */
   public Observable<HttpResponse> callJersey(String tenantName, String httpsUrl) {
     return Observable.create(inSource -> {
       System.out.println("Calling Terry URL, tenant: " + tenantName + "' on thread " + Thread.currentThread().getName());
