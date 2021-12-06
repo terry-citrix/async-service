@@ -56,6 +56,7 @@ public class HttpService {
 
   public Observable<HttpResponse> callJersey(String tenantName, String httpsUrl) {
     return Observable.create(inSource -> {
+      long startTime = System.currentTimeMillis();
       System.out.println("Calling Terry URL, tenant: " + tenantName + "' on thread " + Thread.currentThread().getName());
       String response = "<ERROR>";
       try {
@@ -65,6 +66,8 @@ public class HttpService {
         inSource.onError(new RuntimeException("rrrrr", e));
       }
       HttpResponse value = new HttpResponse(response, tenantName);
+      long endTime = System.currentTimeMillis();
+      System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Took " + (endTime-startTime) + "ms inside of the Observable.");
       inSource.onNext(value);
       inSource.onComplete();
     });
