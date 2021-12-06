@@ -18,6 +18,7 @@ public class App {
 
     private String baseUrl = null;
     private int threadCount = 0;
+    private int repeatPeriod = 0;
 
     public static void main(String[] args) {
         App app = new App();
@@ -47,6 +48,19 @@ public class App {
                     System.err.println("ERROR - the argument after '-count' is not a number!");
                     System.exit(1);
                 }
+            } else if ("-repeat".equalsIgnoreCase(args[i])) {
+                i++;
+                if (i >= args.length) {
+                    System.err.println("Missing input after -repeat");
+                    System.exit(1);
+                }
+                try {
+                    repeatPeriod = Integer.parseInt(args[i]);
+                    System.out.println("Repeat Period is: " + repeatPeriod);
+                } catch (NumberFormatException ex) {
+                    System.err.println("ERROR - the argument after '-repeat' is not a number!");
+                    System.exit(1);
+                }
             }
         }
 
@@ -65,10 +79,22 @@ public class App {
         ExecutorService executor= Executors.newFixedThreadPool(threadCount);
         boolean isServletRequest = baseUrl.contains("/servlet/");
         try {
-            for (int i = 0; i < threadCount; i++) {
-                String tenantName = "Customer" + i;
-                executor.execute(new ApiCaller(isServletRequest ? baseUrl + "?name=" + tenantName : baseUrl + tenantName));
-            }
+            int tenantCount = 0;
+            do {
+                for (int i = 0; i < threadCount; i++) {
+                    tenantCount++;
+                    String tenantName = "Customer" + tenantCount;
+                    executor.execute(new ApiCaller(baseUrl + tenantName));
+                }
+
+                if (repeatPeriod == 0) {
+                    System.out.println("We're not repeating, so stop here.");
+                    break;
+                } else {
+                    Thread.sleep(repeatPeriod * 1000L);
+                    System.out.println("Starting next batch after the repeat period.");
+                }
+            } while (true);
         } catch (Exception err){
             err.printStackTrace();
         }

@@ -14,9 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
-
-import java.util.concurrent.CompletableFuture;
 
 import static org.asynchttpclient.Dsl.asyncHttpClient;
 

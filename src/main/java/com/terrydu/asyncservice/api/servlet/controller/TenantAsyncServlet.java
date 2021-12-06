@@ -1,18 +1,8 @@
 package com.terrydu.asyncservice.api.servlet.controller;
 
 import com.terrydu.asyncservice.TenantContext;
-import com.terrydu.asyncservice.api.mvc.controller.AsyncTenantController;
 import com.terrydu.asyncservice.executors.OnResponseReceived;
 import com.terrydu.asyncservice.executors.OnResponseReceivedExecutor;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.ParseException;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.ListenableFuture;
 import org.asynchttpclient.Response;
@@ -26,12 +16,10 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import javax.servlet.AsyncContext;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 import static org.asynchttpclient.Dsl.asyncHttpClient;
 
