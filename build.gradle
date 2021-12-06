@@ -19,7 +19,7 @@ dependencies {
 	implementation 'org.apache.httpcomponents:httpclient'
 	implementation 'org.apache.httpcomponents.client5:httpclient5:5.1.1'
 	implementation 'javax.activation:activation:1.1'
-	implementation 'com.google.guava:guava:31.0.1-jre'
+	implementation 'com.google.guava:guava:29.0-jre'
 
 	// CEM uses version 2.4 of Jersey.
 	implementation "org.glassfish.jersey.containers:jersey-container-servlet:2.4"
