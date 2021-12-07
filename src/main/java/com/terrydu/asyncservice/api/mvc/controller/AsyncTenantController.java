@@ -28,7 +28,6 @@ public class AsyncTenantController {
     private static final String SERVICE_URL_60 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait60";
     private static final String SERVICE_URL_120 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait120";
 
-    private static final Logger logger = LoggerFactory.getLogger(AsyncTenantController.class);
     private final OnResponseReceivedExecutor onResponseReceivedExecutor;
 
     @Autowired
@@ -41,16 +40,17 @@ public class AsyncTenantController {
      */
     @GetMapping("/async/tenant/{tenantName}")
     public DeferredResult<ResponseEntity<String>> asyncTenant(@PathVariable String tenantName) {
-        logger.info("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Handling request for '/api/mvc/async/tenant/" + tenantName + "'");
-        long startTime = System.currentTimeMillis();
+        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Handling request for '/api/mvc/async/tenant/" + tenantName + "'");
         DeferredResult<ResponseEntity<String>> asyncResponse = new DeferredResult<>();
         ThreadLocal<String> threadLocalTenantName = new ThreadLocal<>();
         threadLocalTenantName.set(tenantName);
+
         AsyncHttpClient asyncHttpClient = asyncHttpClient();
         ListenableFuture<Response> whenResponse = asyncHttpClient.prepareGet(SERVICE_URL_15).execute();
         TenantContext tenantContext = new TenantContext();
         tenantContext.setTenantName(tenantName);
-        OnResponseReceived onResponseReceived = new OnResponseReceived(whenResponse, startTime, tenantContext, asyncResponse);
+
+        OnResponseReceived onResponseReceived = new OnResponseReceived(whenResponse, tenantContext, asyncResponse, asyncHttpClient);
         whenResponse.addListener(onResponseReceived, onResponseReceivedExecutor.getOnResponseReceivedExecutor());
         return asyncResponse;
     }

@@ -28,7 +28,6 @@ public class AsyncTenantController {
     private static final String SERVICE_URL_15 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait15";
     private static final String SERVICE_URL_60 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait60";
     private static final String SERVICE_URL_120 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait120";
-    private static final Logger logger = LoggerFactory.getLogger(AsyncTenantController.class);
     private final OnResponseReceivedExecutor onResponseReceivedExecutor;
 
     @Autowired
@@ -39,15 +38,16 @@ public class AsyncTenantController {
     @GET
     @Path("/{tenantName}")
     public void getTenantByName(@PathParam("tenantName") String tenantName, @Suspended final AsyncResponse inAsyncResponse) {
-        logger.info("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Handling request for '/api/jersey/async/tenant/" + tenantName + "'");
-        long startTime = System.currentTimeMillis();
+        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Handling request for '/api/jersey/async/tenant/" + tenantName + "'");
         ThreadLocal<String> threadLocalTenantName = new ThreadLocal<>();
         threadLocalTenantName.set(tenantName);
+
         AsyncHttpClient asyncHttpClient = asyncHttpClient();
         ListenableFuture<Response> whenResponse = asyncHttpClient.prepareGet(SERVICE_URL_15).execute();
         TenantContext tenantContext = new TenantContext();
         tenantContext.setTenantName(tenantName);
-        OnResponseReceived onResponseReceived = new OnResponseReceived(whenResponse, startTime, tenantContext, inAsyncResponse);
+
+        OnResponseReceived onResponseReceived = new OnResponseReceived(whenResponse, tenantContext, inAsyncResponse, asyncHttpClient);
         whenResponse.addListener(onResponseReceived, onResponseReceivedExecutor.getOnResponseReceivedExecutor());
     }
 }

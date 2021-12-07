@@ -33,7 +33,6 @@ import static org.asynchttpclient.Dsl.asyncHttpClient;
 public class TenantAsyncServlet extends HttpServlet {
 
     private static final String SERVICE_URL_15 = "https://terrydu-wait.azurewebsites.net/api/terrydu-wait15";
-    private static final Logger logger = LoggerFactory.getLogger(TenantAsyncServlet.class);
 
     @Autowired
     private OnResponseReceivedExecutor onResponseReceivedExecutor;
@@ -51,17 +50,18 @@ public class TenantAsyncServlet extends HttpServlet {
                          HttpServletResponse servletResponse)
     {
         String tenantName = servletRequest.getParameter("name");
-        logger.info("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Handling request for '/api/servlet/sync/tenant?name=" + tenantName + "'");
-        long startTime = System.currentTimeMillis();
+        System.out.println("Thread " + Thread.currentThread().getName() + ", Tenant " + tenantName + ": Handling request for '/api/servlet/sync/tenant?name=" + tenantName + "'");
         servletRequest.setAttribute("org.apache.catalina.ASYNC_SUPPORTED", true);
         ThreadLocal<String> threadLocalTenantName = new ThreadLocal<>();
         threadLocalTenantName.set(tenantName);
+
         AsyncContext asyncContext = servletRequest.startAsync();
         AsyncHttpClient asyncHttpClient = asyncHttpClient();
         ListenableFuture<Response> whenResponse = asyncHttpClient.prepareGet(SERVICE_URL_15).execute();
         TenantContext tenantContext = new TenantContext();
         tenantContext.setTenantName(tenantName);
-        OnResponseReceived onResponseReceived = new OnResponseReceived(whenResponse, startTime, tenantContext, asyncContext );
+
+        OnResponseReceived onResponseReceived = new OnResponseReceived(whenResponse, tenantContext, asyncContext, asyncHttpClient );
         whenResponse.addListener(onResponseReceived, onResponseReceivedExecutor.getOnResponseReceivedExecutor());
     }
 }
